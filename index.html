@@ -14,10 +14,52 @@
         <div class="logo-wrap mb-5">
             <img class="logo" src="./images/pokemon-logo.png" alt="Pokemon logo">
         </div>
-        <ul class="card-list mt-5">
-
-        </ul>
+        <form class="control-form align-items-center d-md-flex" action="#" method="post">
+            <input class="search-input form-control mb-2 mb-md-0 me-md-2" type="search" placeholder="Search pokemon...">
+            <input class="from-candy-input form-control mb-2 mb-md-0 me-md-2" type="number" placeholder="From candy">
+            <input class="to-candy-input form-control mb-2 mb-md-0 me-md-2" type="number" placeholder="To candy">
+            <select class="sort-select form-select mb-2 mb-md-0 me-md-2">
+                <option hidden>Sort</option>
+                <option value="a-z">A-z</option>
+                <option value="z-a">Z-a</option>
+                <option value="light">From light to weight</option>
+                <option value="weight">From weight to light</option>
+            </select>
+            <select class="weaknesses-select form-select mb-0 mb-md-0 me-md-2" name="weaknesses">
+                <option value="all">All</option>
+            </select>
+            <button class="btn btn-success">Submit</button>
+        </form>
+        <ul class="card-list mt-5"></ul>
     </div>
+
+    <template class="frag-temp">
+        <li class="card-item">
+            <span class="badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"></span>
+            <div class="title-wrap">
+                <h2 class="title"></h2>
+            </div>
+            <div class="img-wrap">
+                <img class="poke-img" src="" alt="" width="200" height="200">
+            </div>
+            <time class="time-wrap" datetime="25-10-2022"></time>
+            <div class="subtitle-wrap">
+                <strong class="subtitle fs-5 mb-3 d-block"></strong>
+                <div class="d-flex justify-content-around mb-3">
+                    <div class="text-center">
+                        <p class="mb-1">Candy count</p>
+                        <strong class="candy-text"></strong>
+                    </div>
+                    <div class="text-center">
+                        <p class="mb-1">Weight</p>
+                        <strong class="weight-text"></strong>
+                    </div>
+                </div>
+                <p class="fs-6 text-center fw-semibold mb-1">Weaknesses</p>
+                <p class="weaknesses-text text-center mb-0"></p>
+            </div>
+        </li>
+    </template>
 
 
     <script src="js/pokemons.js"></script>

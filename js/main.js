@@ -1,47 +1,120 @@
-var elCardItem = document.querySelector(".card-list");
+const weaknesses = [];
 
-var slicePokemon = pokemons.slice(0, 148);
+const elCardItem = document.querySelector(".card-list");
 
-for (var i of slicePokemon) {
-    var newItem = document.createElement("li")
-    var badge = document.createElement("span");
-    var titleWrap = document.createElement("div");
-    var title = document.createElement("h2");
-    var imgWrap = document.createElement("div");
-    var img = document.createElement("img");
-    var time = document.createElement("time");
-    var subtitleWrap = document.createElement("div");
-    var subtitle = document.createElement("strong");
+// get control form
+const elForm = document.querySelector(".control-form");
+const elSearchInput = elForm.querySelector(".search-input");
+const elSearchSelect = elForm.querySelector(".sort-select");
+const elWeaknessesSelect = elForm.querySelector(".weaknesses-select");
+const elFromCandyInput = elForm.querySelector(".from-candy-input");
+const elToCandyInput = elForm.querySelector(".to-candy-input");
 
-    // Ochilgan elementlarga qiymat berish
-    badge.textContent = i.num;
-    title.textContent = i.name;
-    img.src = i.img;
-    img.width = "200";
-    img.height = "200";
-    img.alt = i.name;
-    time.textContent = i.spawn_time
-    time.setAttribute("datetime", `10-19-2022 ${i.spawn_time}`);
-    subtitle.textContent = i.candy;
 
-    // Style
-    newItem.classList.add("card-item");
-    badge.classList.add("position-absolute", "top-0", "start-100", "translate-middle", "badge", "rounded-pill", "bg-danger")
-    titleWrap.classList.add("title-wrap")
-    imgWrap.classList.add("img-wrap")
-    subtitleWrap.classList.add("subtitle-wrap")
-    subtitle.style.fontWeight = 500;
-    time.classList.add("time-wrap")
+const slicePokemon = pokemons.slice(0, 148);
+const tempFragment = document.querySelector(".frag-temp").content;
+const pokeFragment = document.createDocumentFragment();
 
-    // Elementlarni domga chiqarish
-    newItem.appendChild(badge)
-    titleWrap.appendChild(title)
-    newItem.appendChild(titleWrap)
-    imgWrap.appendChild(img)
-    newItem.appendChild(imgWrap)
-    newItem.appendChild(time)
-    subtitleWrap.appendChild(subtitle)
-    newItem.appendChild(subtitleWrap)
+function renderPokemon(pokemon, regex = ""){
+    elCardItem.innerHTML = ""
+    pokemon.forEach(item => {
+        const tempFragmentClone = tempFragment.cloneNode(true);
 
-    elCardItem.appendChild(newItem)
+        tempFragmentClone.querySelector(".badge").textContent = item.num;
+        if(regex.source != "(?:)" && regex){
+          tempFragmentClone.querySelector(".title").innerHTML = item.name.replace(regex, `<mark class="bg-warning">${regex.source.toLowerCase()}</mark>`);
+        }  else {
+          tempFragmentClone.querySelector(".title").textContent = item.name;
+        }
+        tempFragmentClone.querySelector(".poke-img").src = item.img;
+        tempFragmentClone.querySelector(".poke-img").alt = item.name;
+        tempFragmentClone.querySelector(".time-wrap").textContent = item.spawn_time;
+        tempFragmentClone.querySelector(".subtitle").textContent = item.candy;
+        tempFragmentClone.querySelector(".candy-text").textContent = item.candy_count;
+        tempFragmentClone.querySelector(".weight-text").textContent = item.weight;
+        tempFragmentClone.querySelector(".weaknesses-text").textContent = item.weaknesses.join(", ");
+
+        pokeFragment.appendChild(tempFragmentClone);
+    });
+
+    elCardItem.appendChild(pokeFragment);
 }
+
+elForm.addEventListener("submit", searchPokemon);
+
+function searchPokemon(evt){
+    evt.preventDefault();
+    const searchInputValue = elSearchInput.value.trim();
+    const regex = new RegExp(searchInputValue, "gi");
+
+    const sortSelectValue = elSearchSelect.value;
+    sortFunction(pokemons, sortSelectValue);
+
+    const searchPokemon = pokemons.filter(item => item.name.match(regex) && (elWeaknessesSelect.value === "all" || item.weaknesses.includes(elWeaknessesSelect.value)) && (elFromCandyInput.value == "" || item.candy_count >= Number(elFromCandyInput.value)) && (elToCandyInput.value == "" || item.candy_count <= Number(elToCandyInput.value)));
+          if(searchPokemon.length > 0){
+              renderPokemon(searchPokemon, regex);
+          } else {
+              elCardItem.innerHTML = "Not found !!!"
+          }
+}
+
+function getUniqueWeakness(){
+    pokemons.forEach(item => {
+        item.weaknesses.forEach(weak => {
+           if(!weaknesses.includes(weak)){
+               weaknesses.push(weak);
+           }
+        })
+    })
+};
+
+function renderWeakness(){
+    const newFragment = new DocumentFragment();
+    weaknesses.forEach(item => {
+    const newOption = document.createElement("option");
+    newOption.textContent = item;
+    newOption.value = item;
+
+    newFragment.appendChild(newOption);
+    });
+    elWeaknessesSelect.appendChild(newFragment)
+}
+
+
+function sortFunction(elements, select){
+    if(select === "a-z"){
+        elements.sort((a, b) => {
+            if(a.name > b.name){
+                return 1
+            }  else if(a.name < b.name){
+                return -1;
+            } else {
+                return 0;
+            }
+
+        });
+    }
+    if(select === "z-a"){
+        elements.sort((a, b) => {
+            if(a.name > b.name){
+                return -1
+            }  else if(a.name < b.name){
+                return 1;
+            } else {
+                return 0;
+            }
+
+        });
+    }
+    if(select === "light") {
+        elements.sort((a, b) => parseFloat(a.weight) - parseFloat(b.weight))
+    }
+    if(select === "weight") {
+        elements.sort((a, b) => parseFloat(b.weight) - parseFloat(a.weight))
+    }
+}
+
+
+getUniqueWeakness();
+renderWeakness();
+renderPokemon(slicePokemon);
